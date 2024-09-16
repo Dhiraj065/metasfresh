@@ -1,0 +1,107 @@
+services:
+  # Define the services block
+  db:
+    build: db
+    shm_size: 256m
+    restart: always
+    volumes:
+      - ./volumes/db/data:/var/lib/postgresql/data
+      - ./volumes/db/log:/var/log/postgresql
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - METASFRESH_USERNAME=metasfresh
+      - METASFRESH_PASSWORD=metasfresh
+      - METASFRESH_DBNAME=metasfresh
+      - DB_SYSPASS=System
+      - POSTGRES_PASSWORD=ip2LmNzXX8p8iXg9lZTWEJ9524kQDbXFudB7LR03T-xK9fLweX3TLMkA2AYcEiaS
+
+  app:
+    build: app
+    hostname: app
+    links:
+      - db:db
+      - rabbitmq:rabbitmq
+      - search:search
+    expose:
+      - "8282"
+      - "8788"
+    restart: always
+    volumes:
+      - ./volumes/app/log:/opt/metasfresh/log:rw
+      - ./volumes/app/heapdump:/opt/metasfresh/heapdump:rw
+      - ./volumes/app/external-lib:/opt/metasfresh/external-lib:rw
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - METASFRESH_HOME=/opt/metasfresh
+
+  webapi:
+    build: webapi
+    links:
+      - app:app
+      - db:db
+      - rabbitmq:rabbitmq
+      - search:search
+    expose:
+      - "8789"
+    restart: always
+    volumes:
+      - ./volumes/webapi/log:/opt/metasfresh-webui-api/log:rw
+      - ./volumes/webapi/heapdump:/opt/metasfresh-webui-api/heapdump:rw
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    # to access the webui-api directly, uncomment the ports section below
+    # ports:
+    #   - "8080:8080"
+    environment:
+      - WEBAPI_URL=https://65.2.74.242
+
+  webui:
+    build: webui
+    links:
+      - webapi:webapi
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+  rabbitmq:
+    build: rabbitmq
+    expose:
+      - "5672"
+    restart: always
+    volumes:
+      - ./volumes/rabbitmq/log:/var/log/rabbitmq/log
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      RABBITMQ_DEFAULT_USER: "metasfresh"
+      RABBITMQ_DEFAULT_PASS: "metasfresh"
+      RABBITMQ_DEFAULT_VHOST: "/"
+
+  search:
+    build: search
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    # Uncomment to access search directly
+    # ports:
+    #   - "9200:9200"
+    #   - "9300:9300"
+    volumes:
+      - ./volumes/search/data:/usr/share/elasticsearch/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - "ES_JAVA_OPTS=-Xms128M -Xmx256m"
+    restart: always
