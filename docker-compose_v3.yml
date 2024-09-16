@@ -53,11 +53,11 @@ services:
       - search:search
     expose:
       - "8789"
-  # to access the webui-api directly
-  # (eg. for debugging or connecting your app to the metasfresh api)
-  # uncomment following port:
+    # to access the webui-api directly
+    # (eg. for debugging or connecting your app to the metasfresh api)
+    # uncomment following port:
     #ports:
-     #- "8080:8080"
+    #- "8080:8080"
     restart: always
     volumes:
       - ./volumes/webapi/log:/opt/metasfresh-webui-api/log:rw
@@ -80,8 +80,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-    #uncomment and set to URL where metasfresh will be available from browsers
-    #environment:
+      #uncomment and set to URL where metasfresh will be available from browsers
+      #environment:
       #- WEBAPI_URL=http://example.com:8080
     logging:
       options:
@@ -117,12 +117,12 @@ services:
         hard: 65536
     cap_add:
       - IPC_LOCK
-  # to access the search api directly
-  # (e.g. if you did docker-compose up search to have the deachboard with your locally running metasfresh services)
-  # uncomment following ports:
-  # ports:
-  #   - "9200:9200"
-  #   - "9300:9300"
+    # to access the search api directly
+    # (e.g. if you did docker-compose up search to have the deachboard with your locally running metasfresh services)
+    # uncomment following ports:
+    # ports:
+    #   - "9200:9200"
+    #   - "9300:9300"
     volumes:
       - ./volumes/search/data:/usr/share/elasticsearch/data
       - /etc/localtime:/etc/localtime:ro
