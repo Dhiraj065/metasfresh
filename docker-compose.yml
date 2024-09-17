@@ -57,7 +57,7 @@ services:
     # ports:
     #   - "8080:8080"
     environment:
-      - WEBAPI_URL=https://65.2.74.242
+      - WEBAPI_URL=http://65.2.74.242
 
   webui:
     build: webui
