@@ -1,4 +1,4 @@
-version: '3.8' # Add the Compose version
+version: '2' # Add the Compose version
 
 services:
   # Define the services block
